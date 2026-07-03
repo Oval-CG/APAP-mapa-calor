@@ -58,7 +58,7 @@
 <button id="btn-set" title="Ajustes y capas">&#9881;</button>
 <div id="setp" class="glass">
   <div class="sh"><span>Capas extra</span><button id="btn-cl">&#10005;</button></div>
-  <div class="pt-row"><div class="pt-left">Mosaico comercial (Sto. Dgo.)</div><span class="switch"><input type="checkbox" id="lay-grid"><span class="sl"></span></span></div>
+  <div class="pt-row"><div class="pt-left">Mosaico comercial (Sto. Dgo.)</div><span class="switch"><input type="checkbox" id="lay-grid" checked><span class="sl"></span></span></div>
   <div class="cl" style="margin-top:8px;"><span>Opacidad mosaico</span><span class="v" id="lab-op">45%</span></div><input type="range" id="op-grid" min="0" max="100" value="45">
   <div class="st">Top 15 zonas comerciales (Sto. Dgo.)</div>
   <table><thead><tr><th>#</th><th>Score</th><th>Rese&ntilde;as</th><th>Loc.</th></tr></thead><tbody id="rank-b"></tbody></table>
@@ -79,6 +79,7 @@
  fineGrid.forEach(c=>{const sc=c[4],op=opG()*(0.35+0.65*sc);const rect=L.rectangle([[c[0],c[1]],[c[2],c[3]]],{stroke:false,fillColor:sColor(sc),fillOpacity:op});rect.myS=sc;
    rect.bindPopup('<div class="popup-title">Zona (~900m)</div><div class="popup-row">Comercios: <b>'+c[5]+'</b></div><div class="popup-row">Rese&ntilde;as: <b>'+(c[6]||0).toLocaleString()+'</b></div><div class="popup-row">Intensidad: <b>'+(sc*100).toFixed(0)+'%</b></div>');
    gridLayer.addLayer(rect);});
+ gridLayer.addTo(map);
 
  // puntos de acceso con clustering
  const TYPES={'Sucursal':{color:'#1e3a8a',r:6,label:'Oficinas'},'Cajero':{color:'#0891b2',r:4,label:'Cajeros'},'Subagente':{color:'#f97316',r:4,label:'Subagentes'}};
