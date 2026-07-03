@@ -1,0 +1,9 @@
+# Seguridad: nunca publicar el script que contiene la API key ni datos crudos
+mapa_trafico_sd.py
+*.py
+*.xlsx
+*.xls
+*.csv
+.env
+*secret*
+*apikey*
