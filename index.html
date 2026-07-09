@@ -67,6 +67,15 @@
   <div class="st">Densidad comercial</div>
   <div class="pt-row"><div class="pt-left">Mosaico de comercios</div><span class="switch"><input type="checkbox" id="lay-grid" checked><span class="sl"></span></span></div>
   <div class="legend-g"></div><div class="legend-l"><span>Poca</span><span>Mucha actividad</span></div>
+  <div class="st">Oportunidades en el mapa</div>
+  <div class="pt-row"><div class="pt-left">Mostrar spots de oportunidad</div><span class="switch"><input type="checkbox" id="lay-opp"><span class="sl"></span></span></div>
+  <select id="opp-map-filtro">
+    <option value="both" selected>&#128994;&#128993; Sin banco + con competencia</option>
+    <option value="green">&#128994; Sin banco cerca</option>
+    <option value="steal">&#128993; Con competencia, sin APAP</option>
+    <option value="apap">&#128309; Donde APAP ya est&aacute;</option>
+  </select>
+  <div class="stat"><span>Spots visibles</span><strong id="opp-vis">0</strong></div>
   <div class="st">Conclusiones</div>
   <button id="btn-rank" class="rank-btn">&#127942; Ranking de entidades</button>
   <button id="btn-opp" class="rank-btn" style="background:var(--orange);margin-top:6px;">&#127919; Oportunidades de expansi&oacute;n</button>
@@ -275,10 +284,40 @@
  document.getElementById('opp-cl').addEventListener('click',function(){document.getElementById('oppp').classList.remove('open');});
  document.getElementById('opp-filtro').addEventListener('change',computeOpp);
 
+ // ---- Oportunidades PINTADAS en el mapa (filtro grafico, no solo tabla) ----
+ var OPP_COLORS={green:'#16a34a',steal:'#f59e0b',apap:'#1e3a8a'};
+ function oppCategory(s){if(s.off===0)return 'green';if(!s.apap)return 'steal';return 'apap';}
+ var oppMapLayer=L.layerGroup();
+ function drawOppMap(){
+   oppMapLayer.clearLayers();
+   if(!document.getElementById('lay-opp').checked){document.getElementById('opp-vis').innerText='0';return;}
+   var f=document.getElementById('opp-map-filtro').value, n=0;
+   spots.forEach(function(s){
+     if(!zonaMatch({prov:s.city}))return;
+     var cat=oppCategory(s);
+     if(f==='green'&&cat!=='green')return;
+     if(f==='steal'&&cat!=='steal')return;
+     if(f==='apap'&&cat!=='apap')return;
+     if(f==='both'&&cat==='apap')return;
+     var col=OPP_COLORS[cat], rad=7+(s.h/100)*7;
+     var mk=L.circleMarker([s.lat,s.lon],{radius:rad,color:'#fff',weight:2,fillColor:col,fillOpacity:0.88});
+     var cov=cat==='green'?'Sin oficina bancaria a 500m &mdash; mercado sin atender.'
+       :cat==='steal'?('<b>'+s.off+'</b> oficina(s) a 500m, sin APAP: '+s.ents.join(', '))
+       :('APAP ya presente ('+s.off+' oficina(s) a 500m)');
+     mk.bindPopup('<div class="popup-title">Spot de oportunidad &mdash; '+cityLabel(s.city)+'</div><div class="popup-row">Calor <b>'+s.h+'</b>/100 &middot; <b>'+s.n+'</b> comercios</div><div class="popup-row">'+cov+'</div>');
+     oppMapLayer.addLayer(mk); n++;
+   });
+   document.getElementById('opp-vis').innerText=n.toLocaleString();
+ }
+ document.getElementById('lay-opp').addEventListener('change',function(e){e.target.checked?oppMapLayer.addTo(map):map.removeLayer(oppMapLayer);drawOppMap();});
+ document.getElementById('opp-map-filtro').addEventListener('change',drawOppMap);
+ zsel.addEventListener('change',drawOppMap);
+
  document.getElementById('lay-grid').addEventListener('change',drawGrid);
  document.getElementById('op-grid').addEventListener('input',function(e){document.getElementById('lab-op').innerText=e.target.value+'%';drawGrid();});
  document.getElementById('btn-set').addEventListener('click',function(){document.getElementById('setp').classList.toggle('open');});
  document.getElementById('btn-cl').addEventListener('click',function(){document.getElementById('setp').classList.remove('open');});
  render();
  drawGrid();
+ drawOppMap();
 </script></body></html>
